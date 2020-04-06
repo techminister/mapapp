@@ -3,6 +3,7 @@ import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import "./App.css";
 import Maps from "./Map";
 import styled from 'styled-components';
+//import {run} from './allocate_db';
 
 
 
@@ -38,12 +39,17 @@ export default class App extends React.Component{
                         SUTD Capstone Campus Map
                     </Title>
                 <AppWrapper> 
+                    <form onSubmit>
+                    <button type="submit">
+                      Run Alogrithm
+                    </button>
+                    </form> 
                     <button>
-                        Allocate Slots
+                      Allocate Slots
                     </button>
                     <button>
-                        View Database
-                    </button> 
+                      View Database
+                    </button>
                     <Maps />
                 </AppWrapper>
             </div>

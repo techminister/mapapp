@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^7.2.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "file-system": "^2.2.2",
     "leaflet": "^1.6.0",
     "mysql": "^2.18.1",
     "prop-types": "^15.7.2",
