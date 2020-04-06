@@ -7,26 +7,6 @@ import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import mappic from '/Users/suhassahu/Desktop/ReactStuff/mapapp/src/spaceupdat.jpg';
 import { useAlert } from 'react-alert';
 
-var mysql = require("mysql");
-
-var connection = mysql.createConnection({   
-    host:'localhost',
-    user:'root',
-    password: 'password',
-    database: 'capstone_form'
-});
-
-connection.connect(function(err){
-    if (err) throw err;
-    
-    var sql = "UPDATE registration SET groupName='Pick' WHERE groupName='Picky'";
-    connection.query(sql, function(err, result){
-        if (err) throw err;
-        console.log(result.affectedRows + "record(s) updated");
-        console.log(result);
-    })
-})
-
 const Wrapper = styled.div`
     width: $(props => props.width);
     height: $(props => props.height);
@@ -44,6 +24,7 @@ export default class Maps extends React.Component{
             width: '',
             breadth: '',
             ready: '',
+            entries: [],
         });
         this.handleChange = this.handleChange.bind(this);
       }
@@ -53,10 +34,20 @@ export default class Maps extends React.Component{
     handleSubmit = event => {
         event.preventDefault()
         this.setState({ready: "yes"});
-        alert(this.state.ready);
+        alert([this.state.width, this.state.breadth, this.state.boothID]);
     }
     //L.rectangle([[Number(this.state.height), Number(this.state.width)],[55,110]]));
+    getProducts = _ => {
+        fetch('http://localhost:4000/registration')
+        .then(response => response.json())
+        .then(response => console.log(response.data))
+        .then(response => this.setState({entries: response.data}))
+        .catch(err => console.error(err))
+    
+    }
+
     componentDidMount(){
+        this.getProducts();
         this.map = L.map('map',
         {
             crs: L.CRS.Simple,
@@ -106,7 +97,9 @@ export default class Maps extends React.Component{
                 var dim1 = Math.round(((nElng/92)*132)-topleft1);
                 var dim2 = Math.round(((-sWlat/91)*132)-topleft2);
                 booths[boothno].setPopupContent("Booth No: " +  key + " " + "Dimensions: " + [dim1,dim2]);
-                console.log(boothno, "old", dimensions[boothno], "new", [topleft1, topleft2], [dim1,dim2]);
+                console.log(boothno);
+                //need to debug, booth number only comes up once, after that reverts to 56
+                //console.log(boothno, "old", dimensions[boothno], "new", [[topleft1, topleft2], [dim1,dim2]]);
               });
 
     
@@ -138,11 +131,13 @@ export default class Maps extends React.Component{
         
     } 
 
+    
 
     render(){
+        console.log(this.state.entries)
         return (  
             <div>
-                <form onSubmit = {this.handleSubmit}>
+                <form onSubmit = {this.handleSubmit} action="./database.js" method="post">
                     <label>
                         Booth ID: 
                     </label>
