@@ -35,8 +35,8 @@ connection.connect(function(err){
 app.use(cors());
 
 app.get('/registration/add', (req,res) =>{
-    const{groupName, prototype, category, company, width, breadth, height, sizeNweight, powerpoints,
-        pedestal, otherRequest, PosX, PosY} = req.query;
+    const{id, groupName, prototype, category, company, width, height, sizeNweight, powerpoints,
+        pedestal, otherRequest, PosX, PosY, level} = req.query;
     const INSERT_REGISTRATION_QUERY =
     `INSERT INTO registration(id, groupName, prototype, category, company, width, height, sizeNweight, powerpoints, pedestal, otherRequest, PosX, PosY, level) VALUES(${id}, ${groupName}, ${prototype}, ${category}, ${company}, ${width}, ${height}, ${sizeNweight}, ${powerpoints}, ${pedestal}, ${otherRequest}, ${PosX}, ${PosY},${level})`;
     connection.query(INSERT_REGISTRATION_QUERY, (err, results) =>{

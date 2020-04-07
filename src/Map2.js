@@ -44,63 +44,11 @@ export default class Maps extends React.Component{
         .then(response => response.json())
         .then(response => this.setState({entries: response.data}))
         .catch(err => console.error(err))
-        
     }
 
 
     componentDidMount(){
         this.getProducts();
-        setTimeout(() => {
-            if(this.state.entries != null){
-                for(const key of this.state.entries.keys()){
-                    this.setState({
-                        dimensions:{ 
-                            ...this.state.dimensions, [this.state.entries[key]["id"]]:
-                            [[this.state.entries[key]["PosX"], this.state.entries[key]["PosY"]], [this.state.entries[key]["height"], this.state.entries[key]["width"]]]
-                        }
-                        
-                    })
-                }
-            }
-            console.log(this.state.dimensions);
-            dimensions = this.state.dimensions;
-            for(var key in dimensions){
-            var newlong = (((dimensions[key][0][0] + dimensions[key][1][0])/132)*92);
-            var newlat = (((dimensions[key][0][1] + dimensions[key][1][1])/132)*91);
-            var oldlong = ((dimensions[key][0][0]/132)*92);
-            var oldlat = ((dimensions[key][0][1]/132)*91);
-            //this.map.addLayer(L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false}));
-            var booth = L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false});
-            //var booth2 = L.rectangle([[-67.12121212121212, 26.484848],[-57.469,42.5]]).addTo(this.map);
-            booth.pm.enable({
-                allowSelfIntersection: false,
-            });
-            booth.bindPopup("Booth No: " +  key + " " + "Dimensions: " + dimensions[key][1]);
-            booths[key] = booth; 
-            booth.addTo(this.map);
-            //If point is edited 
-            booth.on('pm:edit', e => {
-                
-                    var sWlat = e.target._bounds._southWest.lat;
-                    var sWlng = e.target._bounds._southWest.lng;
-                    var nElat = e.target._bounds._northEast.lat;
-                    var nElng = e.target._bounds._northEast.lng;
-                    //get booth no. and convert to int
-                    //topleft1 is dimensions[key][0][0], topleft2 is dimensions[key][0][1]
-                    var boothno = e.target._popup._content.slice(10,13);
-                    var topleft1 = Math.round((sWlng/92)*132); 
-                    var topleft2 = Math.round((-nElat/91)*132);
-                    var dim1 = Math.round(((nElng/92)*132)-topleft1);
-                    var dim2 = Math.round(((-sWlat/91)*132)-topleft2);
-                    booths[boothno].setPopupContent("Booth No: " +  key + " " + "Dimensions: " + [dim1,dim2]);
-                    console.log(boothno)
-                //need to debug, booth number only comes up once, after that reverts to 56
-                //console.log(boothno, "old", dimensions[boothno], "new", [[topleft1, topleft2], [dim1,dim2]]);
-              });
-
-    
-            }
-        }, 100);
         this.map = L.map('map',
         {
             crs: L.CRS.Simple,
@@ -121,7 +69,42 @@ export default class Maps extends React.Component{
     
         
         //adds the various booths to the map
-        
+        for(var key in dimensions){
+            var newlong = (((dimensions[key][0][0] + dimensions[key][1][0])/132)*92);
+            var newlat = (((dimensions[key][0][1] + dimensions[key][1][1])/132)*91);
+            var oldlong = ((dimensions[key][0][0]/132)*92);
+            var oldlat = ((dimensions[key][0][1]/132)*91);
+            //this.map.addLayer(L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false}));
+            var booth = L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false});
+            //var booth2 = L.rectangle([[-67.12121212121212, 26.484848],[-57.469,42.5]]).addTo(this.map);
+            booth.pm.enable({
+                allowSelfIntersection: false,
+            });
+            booth.bindPopup("Booth No: " +  key + " " + "Dimensions: " + dimensions[key][1]);
+            booths[key] = booth; 
+            booth.addTo(this.map);
+            //If point is edited 
+            booth.on('pm:edit', e => {
+                var sWlat = e.target._bounds._southWest.lat;
+                var sWlng = e.target._bounds._southWest.lng;
+                var nElat = e.target._bounds._northEast.lat;
+                var nElng = e.target._bounds._northEast.lng;
+                //get booth no. and convert to int
+                var boothno = e.target._popup._content.slice(10,12);
+                boothno = parseInt(boothno);
+                //topleft1 is dimensions[key][0][0], topleft2 is dimensions[key][0][1]
+                var topleft1 = Math.round((sWlng/92)*132); 
+                var topleft2 = Math.round((-nElat/91)*132);
+                var dim1 = Math.round(((nElng/92)*132)-topleft1);
+                var dim2 = Math.round(((-sWlat/91)*132)-topleft2);
+                booths[boothno].setPopupContent("Booth No: " +  key + " " + "Dimensions: " + [dim1,dim2]);
+                console.log(boothno);
+                //need to debug, booth number only comes up once, after that reverts to 56
+                //console.log(boothno, "old", dimensions[boothno], "new", [[topleft1, topleft2], [dim1,dim2]]);
+              });
+
+    
+        }
         //top left and bottom right 
         //dimensions of full map [[-100,540], [100,-180]]
         //console.log(booths);
@@ -139,7 +122,8 @@ export default class Maps extends React.Component{
           });
         this.map.on('layerremove', e =>{
             if(e.layer._content != null){
-                var boothno = e.layer._content.slice(10,13);
+                var boothno = e.layer._content.slice(10,12);
+                boothno = parseInt(boothno);
                 console.log(boothno);
             }     
         });
@@ -151,6 +135,12 @@ export default class Maps extends React.Component{
     
     render(){
         //console.log((this.state.entries.valuesOf(2)));
+        if(this.state.entries != null){
+            for(const key of this.state.entries.keys()){
+                this.state.dimensions[this.state.entries[key]["id"]] =
+                [[this.state.entries[key]["PosX"], this.state.entries[key]["PosY"]], [this.state.entries[key]["height"], this.state.entries[key]["width"]]]
+            }
+        }
         return (
             <div>
                 <form onSubmit = {this.handleSubmit} >
