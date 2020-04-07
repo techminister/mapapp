@@ -5,7 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import mappic from '/Users/suhassahu/Desktop/ReactStuff/mapapp/src/spaceupdat.jpg';
-import { useAlert } from 'react-alert';
+import { object } from 'prop-types';
+import axios from 'axios'
 
 const Wrapper = styled.div`
     width: $(props => props.width);
@@ -25,6 +26,7 @@ export default class Maps extends React.Component{
             breadth: '',
             ready: '',
             entries: [],
+            dimensions: {},
         });
         this.handleChange = this.handleChange.bind(this);
       }
@@ -40,11 +42,10 @@ export default class Maps extends React.Component{
     getProducts = _ => {
         fetch('http://localhost:4000/registration')
         .then(response => response.json())
-        .then(response => console.log(response.data))
         .then(response => this.setState({entries: response.data}))
         .catch(err => console.error(err))
-    
     }
+
 
     componentDidMount(){
         this.getProducts();
@@ -126,18 +127,23 @@ export default class Maps extends React.Component{
                 console.log(boothno);
             }     
         });
-        
+    
 
         
     } 
 
     
-
     render(){
-        console.log(this.state.entries)
-        return (  
+        //console.log((this.state.entries.valuesOf(2)));
+        if(this.state.entries != null){
+            for(const key of this.state.entries.keys()){
+                this.state.dimensions[this.state.entries[key]["id"]] =
+                [[this.state.entries[key]["PosX"], this.state.entries[key]["PosY"]], [this.state.entries[key]["height"], this.state.entries[key]["width"]]]
+            }
+        }
+        return (
             <div>
-                <form onSubmit = {this.handleSubmit} action="./database.js" method="post">
+                <form onSubmit = {this.handleSubmit} >
                     <label>
                         Booth ID: 
                     </label>

@@ -3,16 +3,18 @@ import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import "./App.css";
 import Maps from "./Map";
 import styled from 'styled-components';
-//import {run} from './allocate_db';
+
+// const run = require('./allocate_db.js');
+// import {run} from './allocate_db';
 
 
 
 
-//try map component 
+//try map component
 const AppWrapper = styled.div`
     justify-content: center;
     margin: 2em
-    
+
 `;
 const Title = styled.h1`
   font-size: 1.5em;
@@ -29,21 +31,29 @@ export default class App extends React.Component{
             checked: false,
         }
     }
-  
 
+    handleSubmit = (evt) => {
+        evt.preventDefault();
+        // alert("hello");
+        fetch('http://localhost:4000/allocate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: "nothing here",
+        }).catch(err => console.log(err));
+    }
 
     render(){
         return(
             <div>
                 <Title>
-                        SUTD Capstone Campus Map
-                    </Title>
-                <AppWrapper> 
-                    <form onSubmit>
+                    SUTD Capstone Campus Map
+                </Title>
+                <AppWrapper>
+                    <form onSubmit={this.handleSubmit}>
                     <button type="submit">
-                      Run Alogrithm
+                      Run Algorithm
                     </button>
-                    </form> 
+                    </form>
                     <button>
                       Allocate Slots
                     </button>
@@ -53,9 +63,9 @@ export default class App extends React.Component{
                     <Maps />
                 </AppWrapper>
             </div>
-            
-                
-                
+
+
+
         );
     }
 
@@ -82,21 +92,21 @@ export default class FirstComponent extends Component {
     constructor(props) {
         super(props)
         }
-    
+
     render() {
         const element = (<div>Text from Element</div>)
         return (<div className="comptext">
         <h3>First Component</h3>
-            <Map center = {[1.3413, 103.9638]} 
-            zoom={12} 
-            bounds= {[[0,0],[100,1000]]} 
+            <Map center = {[1.3413, 103.9638]}
+            zoom={12}
+            bounds= {[[0,0],[100,1000]]}
             crs={L.CRS.Simple}
-            
+
             minZoom={5}>
             <TileLayer
             //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             //attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-              image={L.imageOverlay('logo192.png')} 
+              image={L.imageOverlay('logo192.png')}
              />
             </Map>
             {element}
@@ -104,7 +114,7 @@ export default class FirstComponent extends Component {
     }
 }
 */
-    
+
 
 
 
@@ -115,7 +125,7 @@ class App extends Component {
     state = {
       zoom: 13
     }
-  
+
     render(){
       return (
         <Map className="map" center={[1.3413, 103.9638]} zoom={this.state.zoom}>
@@ -130,6 +140,6 @@ class App extends Component {
       );
     }
   }
-  
+
   export default App;
-  */ 
+  */

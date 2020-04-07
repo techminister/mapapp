@@ -61,6 +61,6 @@ function run() {
     get_allocation(allocator);
 }
 
-run();
+//run();
 
-// module.exports = run;
+module.exports = run;
