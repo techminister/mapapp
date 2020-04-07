@@ -13,7 +13,7 @@ const Wrapper = styled.div`
     height: $(props => props.height);
 `; 
 //Json File
-var dimensions = require('/Users/suhassahu/Desktop/ReactStuff/mapapp/src/dicts.json');
+
 //console.log(data);
  //dimensions of the various booths
 var booths = {};
@@ -64,7 +64,7 @@ export default class Maps extends React.Component{
                 }
             }
             console.log(this.state.dimensions);
-            dimensions = this.state.dimensions;
+            var dimensions = this.state.dimensions;
             for(var key in dimensions){
             var newlong = (((dimensions[key][0][0] + dimensions[key][1][0])/132)*92);
             var newlat = (((dimensions[key][0][1] + dimensions[key][1][1])/132)*91);
