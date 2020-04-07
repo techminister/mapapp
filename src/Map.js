@@ -6,7 +6,6 @@ import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import mappic from '/Users/suhassahu/Desktop/ReactStuff/mapapp/src/spaceupdat.jpg';
 import { object } from 'prop-types';
-import axios from 'axios'
 
 const Wrapper = styled.div`
     width: $(props => props.width);
