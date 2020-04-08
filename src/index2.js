@@ -3,8 +3,8 @@ const cors = require('cors');
 const mysql = require('mysql');
 const app = express();
 
-const {Allocator} = require("../src/allocate.js");
-const SPACE = require("../src/space.js");
+const {Allocator} = require("./allocate.js");
+const SPACE = require("./space.js");
 
 const SELECT_ALL_BOOTHS_QUERY = 'SELECT * FROM registration';
 
@@ -33,6 +33,21 @@ connection.connect(function(err){
 })
 
 app.use(cors());
+
+app.get('/registration/update', (req,res) => {
+    const{id, width, height, PosX, PosY} = req.query;
+    const INSERT_REGISTRATION_QUERY = 
+    `UPDATE registration SET PosX=${PosX}, PosY=${PosY}, width=${width}, height=${height} WHERE id=${id}`;
+    connection.query(INSERT_REGISTRATION_QUERY, (err, results) =>{
+        if(err){
+            return res.send(err)
+        }
+        else{
+            return res.send('successfully updated booth')
+        }
+    });
+
+})
 
 app.get('/registration/add', (req,res) =>{
     const{id, groupName, prototype, category, company, width, height, sizeNweight, powerpoints,
@@ -76,7 +91,7 @@ app.post("/allocate", (req, res) => {
     allocator.load_grid(SPACE);
 
     connection.query('SELECT * FROM registration', (error, results, fields) => {
-        if (error) return res.send(err);
+        if (error) return res.send(error);
         allocator.load_booths_obj(results);
 
     	allocator.allocate();
@@ -90,7 +105,7 @@ app.post("/allocate", (req, res) => {
             data.push([px, py, id]);
         }
         data.forEach((item) => {
-            queries += mysql.format("UPDATE registration SET posX = ?, posY = ? WHERE id = ?; ", item);
+            queries += mysql.format("UPDATE registration SET PosX = ?, PosY = ? WHERE id = ?; ", item);
         });
         connection.query(queries, (error, results, fields) => {
             if (error) throw error;
@@ -105,6 +120,6 @@ app.post("/allocate", (req, res) => {
 
 // console.log(connection);
 
-app.listen(4000, () => {
-    console.log('server listening on port 4000');
+app.listen(3535, () => {
+    console.log('server listening on port 3535');
 });

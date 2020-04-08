@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import "./App.css";
 import Maps from "./Map";
+import {Link} from 'react-router-dom'
 import styled from 'styled-components';
 
 // const run = require('./allocate_db.js');
@@ -33,9 +34,9 @@ export default class App extends React.Component{
     }
 
     handleSubmit = (evt) => {
-        evt.preventDefault();
+        //evt.preventDefault();
         // alert("hello");
-        fetch('http://localhost:4000/allocate', {
+        fetch('http://localhost:3535/allocate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: "nothing here",
@@ -49,17 +50,20 @@ export default class App extends React.Component{
                     SUTD Capstone Campus Map
                 </Title>
                 <AppWrapper>
+                    
                     <form onSubmit={this.handleSubmit}>
-                    <button type="submit">
+                    <button type="submit" id="runalgo">
                       Run Algorithm
                     </button>
                     </form>
-                    <button>
-                      Allocate Slots
-                    </button>
-                    <button>
-                      View Database
-                    </button>
+                    <button
+                        type="button"
+                        id="accessdb"
+                        onClick={(e): void =>  {
+                          e.preventDefault();
+                          window.location.href='http://localhost:3535/registration';
+                          }}
+                    > Access Database</button>
                     <Maps />
                 </AppWrapper>
             </div>
