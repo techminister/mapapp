@@ -12,7 +12,7 @@ const Wrapper = styled.div`
     height: $(props => props.height);
 `; 
 //Json File
-var dimensions = require('./dicts.json');
+var dimensions;
 //console.log(data);
  //dimensions of the various booths
 var booths = {};
@@ -35,6 +35,11 @@ export default class Maps extends React.Component{
             dim1: '',
             dim2: '',
             notallocated: '',
+            newlong: '',
+            newlat: '',
+            oldlong: '',
+            oldlat: '',
+            booth: '',
         });
         this.handleChange = this.handleChange.bind(this);
         this.handleChange1 = this.handleChange1.bind(this);
@@ -97,51 +102,55 @@ export default class Maps extends React.Component{
             console.log(this.state.dimensions);
             dimensions = this.state.dimensions;
             for(var key in dimensions){
-            var newlong = (((dimensions[key][0][0] + dimensions[key][1][0])/132)*92);
-            var newlat = (((dimensions[key][0][1] + dimensions[key][1][1])/132)*91);
-            var oldlong = ((dimensions[key][0][0]/132)*92);
-            var oldlat = ((dimensions[key][0][1]/132)*91);
-            //this.map.addLayer(L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false}));
-            var booth = L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false});
-            //var booth2 = L.rectangle([[-67.12121212121212, 26.484848],[-57.469,42.5]]).addTo(this.map);
-            booth.pm.enable({
-                allowSelfIntersection: false,
-            });
-            booth.bindPopup("Booth No: " +  key + " " + "Dimensions: " + dimensions[key][1]);
-            booths[key] = booth; 
-            booth.addTo(this.map);
-            
-            //If point is edited 
-            booth.on('pm:edit', e => {
-                    this.setState({sWlat: e.target._bounds._southWest.lat});
-                    this.setState({sWlng: e.target._bounds._southWest.lng});
-                    this.setState({nElat: e.target._bounds._northEast.lat});
-                    this.setState({nElng: e.target._bounds._northEast.lng});
-                    //get booth no. and convert to int
-                    //topleft1 is dimensions[key][0][0], topleft2 is dimensions[key][0][1]
-                    this.setState({boothno: e.target._popup._content.slice(10,13) });
-                    this.setState({topleft1: Math.round((this.state.sWlng/92)*132)});
-                    this.setState({topleft2: Math.round((-this.state.nElat/91)*132)});
-                    this.setState({dim1: Math.round(((this.state.nElng/92)*132)-this.state.topleft1)});
-                    this.setState({dim2: Math.round(((-this.state.sWlat/91)*132)-this.state.topleft2)})
-                    console.log((this.state.boothno).length);
-                    booths[this.state.boothno].setPopupContent("Booth ID: " +  this.state.boothno + " " + "Dimensions: " + [this.state.dim1,this.state.dim2]);
-            
-                    this.setState({
-                        dimensions:{ 
-                            ...this.state.dimensions, [this.state.boothno]:
-                            [[this.state.topleft1, this.state.topleft2], [this.state.dim1, this.state.dim2]]
-                        }}, () => {
-                            this.addProduct(this.state.boothno);
-                          }); 
-                          
-                   
+                if(dimensions[key][0][0] && dimensions[key][0][1] == -1){
+                    this.setState({notallocated: this.state.notallocated.concat(key)});
+                    this.setState({notallocated: this.state.notallocated.concat(", ")});
+            } 
+                var newlong = (((dimensions[key][0][0] + dimensions[key][1][0])/132)*92);
+                var newlat = (((dimensions[key][0][1] + dimensions[key][1][1])/132)*91);
+                var oldlong = ((dimensions[key][0][0]/132)*92);
+                var oldlat = ((dimensions[key][0][1]/132)*91);
+                //this.map.addLayer(L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false}));
+                var booth = L.rectangle([[-oldlat, oldlong], [-newlat, newlong]], {pmIgnore: false});
+                //var booth2 = L.rectangle([[-67.12121212121212, 26.484848],[-57.469,42.5]]).addTo(this.map);
+                booth.pm.enable({
+                    allowSelfIntersection: false,
+                });
+                booth.bindPopup("Booth No: " +  key + " " + "Dimensions: " + dimensions[key][1]);
+                booths[key] = booth; 
+                booth.addTo(this.map);
+                
+                //If point is edited 
+                booth.on('pm:edit', e => {
+                        this.setState({sWlat: e.target._bounds._southWest.lat});
+                        this.setState({sWlng: e.target._bounds._southWest.lng});
+                        this.setState({nElat: e.target._bounds._northEast.lat});
+                        this.setState({nElng: e.target._bounds._northEast.lng});
+                        //get booth no. and convert to int
+                        //topleft1 is dimensions[key][0][0], topleft2 is dimensions[key][0][1]
+                        this.setState({boothno: e.target._popup._content.slice(10,13) });
+                        this.setState({topleft1: Math.round((this.state.sWlng/92)*132)});
+                        this.setState({topleft2: Math.round((-this.state.nElat/91)*132)});
+                        this.setState({dim1: Math.round(((this.state.nElng/92)*132)-this.state.topleft1)});
+                        this.setState({dim2: Math.round(((-this.state.sWlat/91)*132)-this.state.topleft2)})
+                        console.log((this.state.boothno).length);
+                        booths[this.state.boothno].setPopupContent("Booth ID: " +  this.state.boothno + " " + "Dimensions: " + [this.state.dim1,this.state.dim2]);
+                
+                        this.setState({
+                            dimensions:{ 
+                                ...this.state.dimensions, [this.state.boothno]:
+                                [[this.state.topleft1, this.state.topleft2], [this.state.dim1, this.state.dim2]]
+                            }}, () => {
+                                this.addProduct(this.state.boothno);
+                            }); 
+                            
                     
-                //need to debug, booth number only comes up once, after that reverts to 56
-                //console.log(boothno, "old", dimensions[boothno], "new", [[topleft1, topleft2], [dim1,dim2]]);
-              });
+                        
 
-    
+                    //console.log(boothno, "old", dimensions[boothno], "new", [[topleft1, topleft2], [dim1,dim2]]);
+                });
+
+        
             }
         }, 1000);
         this.map = L.map('map',
@@ -190,7 +199,10 @@ export default class Maps extends React.Component{
                         [[-1,-1], [this.state.dimensions[this.state.boothno][1][0], this.state.dimensions[this.state.boothno][1][1]]]
                     }}, () => {
                         this.addProduct(this.state.boothno);
-                      }); 
+                      });
+                this.setState({notallocated: this.state.notallocated.concat(this.state.boothno)});
+                this.setState({notallocated: this.state.notallocated.concat(", ")});
+
             }     
         });
     
@@ -200,7 +212,6 @@ export default class Maps extends React.Component{
 
     
     render(){
-        //console.log((this.state.entries.valuesOf(2)));
         return (
             <div>
                 <form onSubmit = {this.handleSubmit} >
@@ -222,7 +233,7 @@ export default class Maps extends React.Component{
                     <button type="submit" id="changebtn">Submit</button>
                 </form>
                 <label>
-                    Booths Yet To Be Placed: {this.state.notallocated}
+                    Booths Yet To Be Allocated: {this.state.notallocated}
                 </label>
                 
 
