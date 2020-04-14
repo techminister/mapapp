@@ -25,6 +25,16 @@ export default class Maps extends React.Component{
             height: '',
             entries: [],
             dimensions: {},
+            sWlat: '',
+            sWlng: '',
+            nElat: '', 
+            nElng: '', 
+            boothno: '',
+            topleft1: '',
+            topleft2: '',
+            dim1: '',
+            dim2: '',
+            notallocated: '',
         });
         this.handleChange = this.handleChange.bind(this);
         this.handleChange1 = this.handleChange1.bind(this);
@@ -61,8 +71,8 @@ export default class Maps extends React.Component{
         
     };
     
-    addProduct = _ => {
-        fetch(`http://localhost:3535/registration/update?id="${this.state.boothID}"&width=${this.state.dimensions[this.state.boothID][1][0]}&height=${this.state.dimensions[this.state.boothID][1][1]}&PosX=${this.state.dimensions[this.state.boothID][0][0]}&PosY=${this.state.dimensions[this.state.boothID][0][1]}`)
+    addProduct(boothno){
+        fetch(`http://localhost:3535/registration/update?id="${boothno}"&width=${this.state.dimensions[boothno][1][0]}&height=${this.state.dimensions[boothno][1][1]}&PosX=${this.state.dimensions[boothno][0][0]}&PosY=${this.state.dimensions[boothno][0][1]}`)
         .then(response => response.json())
         .then(this.getProducts)
         .then(alert("Updated Successfully"))
@@ -100,22 +110,33 @@ export default class Maps extends React.Component{
             booth.bindPopup("Booth No: " +  key + " " + "Dimensions: " + dimensions[key][1]);
             booths[key] = booth; 
             booth.addTo(this.map);
+            
             //If point is edited 
             booth.on('pm:edit', e => {
-                
-                    var sWlat = e.target._bounds._southWest.lat;
-                    var sWlng = e.target._bounds._southWest.lng;
-                    var nElat = e.target._bounds._northEast.lat;
-                    var nElng = e.target._bounds._northEast.lng;
+                    this.setState({sWlat: e.target._bounds._southWest.lat});
+                    this.setState({sWlng: e.target._bounds._southWest.lng});
+                    this.setState({nElat: e.target._bounds._northEast.lat});
+                    this.setState({nElng: e.target._bounds._northEast.lng});
                     //get booth no. and convert to int
                     //topleft1 is dimensions[key][0][0], topleft2 is dimensions[key][0][1]
-                    var boothno = e.target._popup._content.slice(10,13);
-                    var topleft1 = Math.round((sWlng/92)*132); 
-                    var topleft2 = Math.round((-nElat/91)*132);
-                    var dim1 = Math.round(((nElng/92)*132)-topleft1);
-                    var dim2 = Math.round(((-sWlat/91)*132)-topleft2);
-                    booths[boothno].setPopupContent("Booth No: " +  key + " " + "Dimensions: " + [dim1,dim2]);
-                    console.log(boothno)
+                    this.setState({boothno: e.target._popup._content.slice(10,13) });
+                    this.setState({topleft1: Math.round((this.state.sWlng/92)*132)});
+                    this.setState({topleft2: Math.round((-this.state.nElat/91)*132)});
+                    this.setState({dim1: Math.round(((this.state.nElng/92)*132)-this.state.topleft1)});
+                    this.setState({dim2: Math.round(((-this.state.sWlat/91)*132)-this.state.topleft2)})
+                    console.log((this.state.boothno).length);
+                    booths[this.state.boothno].setPopupContent("Booth ID: " +  this.state.boothno + " " + "Dimensions: " + [this.state.dim1,this.state.dim2]);
+            
+                    this.setState({
+                        dimensions:{ 
+                            ...this.state.dimensions, [this.state.boothno]:
+                            [[this.state.topleft1, this.state.topleft2], [this.state.dim1, this.state.dim2]]
+                        }}, () => {
+                            this.addProduct(this.state.boothno);
+                          }); 
+                          
+                   
+                    
                 //need to debug, booth number only comes up once, after that reverts to 56
                 //console.log(boothno, "old", dimensions[boothno], "new", [[topleft1, topleft2], [dim1,dim2]]);
               });
@@ -159,10 +180,17 @@ export default class Maps extends React.Component{
             drawCircleMarker: false,
             cutPolygon: false,
           });
-        this.map.on('layerremove', e =>{
-            if(e.layer._content != null){
-                var boothno = e.layer._content.slice(10,13);
-                console.log(boothno);
+        this.map.on('pm:remove', e =>{
+            if(e.layer._popup._content != null){
+                this.setState({boothno: e.layer._popup._content.slice(10,13)});
+                console.log((this.state.boothno).length);
+                this.setState({
+                    dimensions:{ 
+                        ...this.state.dimensions, [this.state.boothno]:
+                        [[-1,-1], [this.state.dimensions[this.state.boothno][1][0], this.state.dimensions[this.state.boothno][1][1]]]
+                    }}, () => {
+                        this.addProduct(this.state.boothno);
+                      }); 
             }     
         });
     
@@ -182,17 +210,22 @@ export default class Maps extends React.Component{
                     <input 
                     type="text" name="boothID" id="boothID" onChange={this.handleChange1}/>
                     <label>
-                        Breadth: 
-                    </label>
-                    <input
-                    type="text" name="height" id="height" onChange={this.handleChange}/>
-                    <label>
                         Width: 
                     </label>
                     <input
                     type="text" name="width" id="width" onChange={this.handleChange}/>
+                    <label>
+                        Breadth: 
+                    </label>
+                    <input
+                    type="text" name="height" id="height" onChange={this.handleChange}/>
                     <button type="submit" id="changebtn">Submit</button>
                 </form>
+                <label>
+                    Booths Yet To Be Placed: {this.state.notallocated}
+                </label>
+                
+
                 
                 <Wrapper width="512px" height="512px" id="map" />
             </div>
