@@ -203,7 +203,6 @@ export default class Maps extends React.Component{
         this.map.on('pm:remove', e =>{
             if(e.layer._popup._content != null){
                 this.setState({boothno: e.layer._popup._content.slice(10,13)});
-                console.log((this.state.boothno).length);
                 this.setState({
                     dimensions:{ 
                         ...this.state.dimensions, [this.state.boothno]:
@@ -211,8 +210,13 @@ export default class Maps extends React.Component{
                     }}, () => {
                         this.addProduct(this.state.boothno);
                       });
-                this.setState({notallocated: this.state.notallocated.concat(this.state.boothno)});
-                this.setState({notallocated: this.state.notallocated.concat(", ")});
+                window.location.reload(false);
+                //this.setState({notallocated: this.state.notallocated.concat(this.state.boothno)});
+                //this.setState({notallocated: this.state.notallocated.concat(", ")});
+                
+                //this.setState({notallocated: " "})
+                
+                
 
             }     
         });
