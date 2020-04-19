@@ -2,14 +2,12 @@ import React, {Component} from "react";
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import "./App.css";
 import Maps from "./Map";
-import {Link} from 'react-router-dom'
+import {Link} from 'react-router-dom';
 import styled from 'styled-components';
+import sutdLogo from "./imageFile/sutdLogo.png";
 
 // const run = require('./allocate_db.js');
 // import {run} from './allocate_db';
-
-
-
 
 //try map component
 const AppWrapper = styled.div`
@@ -38,41 +36,60 @@ export default class App extends React.Component{
         // alert("hello");
         fetch('http://localhost:3535/allocate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json' },
             body: "nothing here",
         }).catch(err => console.log(err));
     }
 
     render(){
-        return(
-            <div>
-                <Title>
-                    SUTD Capstone Campus Map
-                </Title>
-                <AppWrapper>
+      return(
+        <div>
+
+          {/* Title */}
+          <h2>SUTD Capstone Campus Map</h2>
+
+          {/* Map Allocation */}
+          <AppWrapper>
+            <form action="http://localhost/exportDatabase/exportDatabase.php" method="post">
+              <div>
+                <label>Student's form application: </label>
+                  <button
+                    type="button"
+                    id="accessdb"
                     
-                    <form onSubmit={this.handleSubmit}>
-                    <button type="submit" id="runalgo">
-                      Run Algorithm
-                    </button>
-                    </form>
-                    <button
-                        type="button"
-                        id="accessdb"
-                        onClick={(e): void =>  {
-                          e.preventDefault();
-                          window.location.href='http://localhost:3535/registration';
-                          }}
-                    > Access Database</button>
-                    <Maps />
-                </AppWrapper>
-            </div>
+                    onClick={(e): void =>  {
+                      e.preventDefault();
+                      window.location.href='http://localhost:3535/registration';
+                    }}
+                  > Access database</button>
+                  <input 
+                    type="submit" 
+                    value="Export to excel" 
+                    
+                    id="submitForm" 
+                    onChange={this.handleChange}
+                    onClick={this.handleEdit}
+                  />
+              </div>
+            </form>
 
+            <form onSubmit={this.handleSubmit}>
+              <div >
+                <label>Allocate project booths:</label>
+                <button 
+                  type="submit" 
+                  id="runalgo" 
+                  
+                >Run algorithm</button>
+              </div>
+            </form>
 
+            <Maps/>
 
-        );
+          </AppWrapper>
+        </div>
+      );
     }
-
 }
 
 
